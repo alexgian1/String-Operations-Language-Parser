@@ -70,6 +70,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
  "{"            { return symbol(sym.LCURLBRACKET); }
  "}"            { return symbol(sym.RCURLBRACKET); }
  ","            { return symbol(sym.COMMA); }
+ "+"            { return symbol(sym.PLUS); }
  \"             { stringBuffer.setLength(0); yybegin(STRING); }
  {Ident}        { return symbol(sym.IDENT, yytext()); }
  {WhiteSpace}   { /* just skip what was found, do nothing */ }
