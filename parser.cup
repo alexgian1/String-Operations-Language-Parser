@@ -21,11 +21,11 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, TIMES, LPAREN, RPAREN, IDENT;
+terminal            SEMI, PLUS, MINUS, TIMES, LPAREN, RPAREN, LCURLBRACKET, RCURLBRACKET, IDENT, COMMA;
 terminal String     STRING_LITERAL;        // our scanner provides numbers as strings
 
 /*  Non terminals */
-non terminal            expr_list, func_call;
+non terminal            func_call, declaration, program_start, program_body, declarations, func_calls, dec_args, func_args;
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /**
@@ -49,5 +49,46 @@ expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;                :}
              | STRING_LITERAL:s	            {: RESULT = Integer.parseInt(s);  :}
              ;
 */
-func_call   ::= IDENT:n   {: System.out.println(n+"();"); :}
+
+/*Program structure*/
+
+program_start ::= program_body:body         {: System.out.println("public class Main() {");
+                                            System.out.println(body);
+                                            System.out.println("}"); :};
+
+program_body ::= declarations:decs func_calls:calls           {: RESULT = decs + "\n" + calls; :}
                 ;
+
+
+/*Declarations*/
+
+declarations ::= declaration:dec declarations:decs   {: RESULT = dec  + "\n" + decs; :}
+                | declaration:dec                    {: RESULT = dec; :}
+                ;
+
+dec_args ::= IDENT:id COMMA dec_args:args     {: RESULT = "String " + id + ", " + args; :}
+            | IDENT:id RPAREN LCURLBRACKET    {: RESULT = "String " + id + ") {\n"; :}
+            ;
+
+declaration ::= IDENT:id LPAREN dec_args:args STRING_LITERAL:str RCURLBRACKET {: RESULT = "\tpublic static String " + id + "(" + args;
+                                                                                RESULT += "\t\treturn \"" + str + "\";\n";
+                                                                                RESULT += "\t}"; :}
+            | IDENT:id LPAREN RPAREN LCURLBRACKET STRING_LITERAL:str RCURLBRACKET {: RESULT = "\tpublic static String " + id + "() {\n";
+                                                                                    RESULT += "\t\treturn \"" + str + "\";\n";
+                                                                                    RESULT += "\t}"; :}
+            ;
+
+
+/*Function calls*/
+
+func_calls ::= func_call:call func_calls:calls      {: RESULT = call  + "\n" + calls; :}
+            |  func_call:call                       {: RESULT = call; :}
+            ;
+
+func_args ::= IDENT:id COMMA func_args:args         {: RESULT = id + ", " + args; :}
+            | IDENT:id RPAREN                       {: RESULT = id + ")"; :}
+            ;
+
+func_call ::= IDENT:n LPAREN func_args:args         {: RESULT = "Parsed function call: "+n+"(" + args + ");"; :}
+            | IDENT:n LPAREN RPAREN                 {: RESULT = "Parsed function call: "+n+"();"; :}
+            ;
