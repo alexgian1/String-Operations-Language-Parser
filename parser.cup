@@ -21,11 +21,11 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal            SEMI, PLUS, MINUS, TIMES, UMINUS, LPAREN, RPAREN;
-terminal Integer    NUMBER;        // our scanner provides numbers as integers
+terminal            SEMI, PLUS, MINUS, TIMES, LPAREN, RPAREN, IDENT;
+terminal String     STRING_LITERAL;        // our scanner provides numbers as strings
 
 /*  Non terminals */
-non terminal            expr_list;
+non terminal            expr_list, func_call;
 non terminal Integer    expr;      // used to store evaluated subexpressions
 
 /**
@@ -33,19 +33,21 @@ non terminal Integer    expr;      // used to store evaluated subexpressions
  */
 precedence left PLUS, MINUS;
 precedence left TIMES;
-precedence left UMINUS;
 
 /**
  *  The Grammar Rules
  */
-expr_list ::= expr_list expr:e SEMI         {: System.out.println(e);:}
-            | expr:e SEMI                   {: System.out.println(e);:}
+
+ /*
+expr_list ::= expr_list expr:e SEMI         {: System.out.println(e);         :}
+            | expr:e SEMI                   {: System.out.println(e);         :}
 ;
-expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;       :}
-             | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;       :}
-             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;       :}
-             | MINUS expr:e                 {: RESULT = -e;          :}
-  	         %prec UMINUS
-             | LPAREN expr:e RPAREN	        {: RESULT = e;           :}
-             | NUMBER:n	                    {: RESULT = n;           :}
+expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;                :}
+             | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;                :}
+             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;                :}
+             | LPAREN expr:e RPAREN	        {: RESULT = e;                    :}
+             | STRING_LITERAL:s	            {: RESULT = Integer.parseInt(s);  :}
              ;
+*/
+func_call   ::= IDENT:n   {: System.out.println(n+"();"); :}
+                ;

@@ -9,4 +9,4 @@ execute:
 	java -cp JavaCUP/java-cup-11b-runtime.jar:. Main
 
 clean:
-	rm -f *.class *~ sym.java Scanner.java
+	rm -f *.class *~ Parser.java Scanner.java sym.java
