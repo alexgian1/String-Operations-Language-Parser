@@ -65,15 +65,11 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 
 <YYINITIAL> {
 /* operators */
- "+"            { return symbol(sym.PLUS); }
- "-"            { return symbol(sym.MINUS); }
- "*"            { return symbol(sym.TIMES); }
  "("            { return symbol(sym.LPAREN); }
  ")"            { return symbol(sym.RPAREN); }
  "{"            { return symbol(sym.LCURLBRACKET); }
  "}"            { return symbol(sym.RCURLBRACKET); }
  ","            { return symbol(sym.COMMA); }
- ";"            { return symbol(sym.SEMI); }
  \"             { stringBuffer.setLength(0); yybegin(STRING); }
  {Ident}        { return symbol(sym.IDENT, yytext()); }
  {WhiteSpace}   { /* just skip what was found, do nothing */ }
