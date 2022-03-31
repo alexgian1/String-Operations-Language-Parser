@@ -38,17 +38,6 @@ non terminal            func_call, declaration, program_start, program_body, dec
  *  The Grammar Rules
  */
 
- /*
-expr_list ::= expr_list expr:e SEMI         {: System.out.println(e);         :}
-            | expr:e SEMI                   {: System.out.println(e);         :}
-;
-expr      ::= expr:e1 PLUS  expr:e2         {: RESULT = e1+e2;                :}
-             | expr:e1 MINUS expr:e2        {: RESULT = e1-e2;                :}
-             | expr:e1 TIMES expr:e2        {: RESULT = e1*e2;                :}
-             | LPAREN expr:e RPAREN	        {: RESULT = e;                    :}
-             | STRING_LITERAL:s	            {: RESULT = Integer.parseInt(s);  :}
-             ;
-*/
 
 /*Program structure*/
 
@@ -56,10 +45,10 @@ program_start ::= program_body:body         {: System.out.println("public class 
                                             System.out.println(body);
                                             System.out.println("}"); :};
 
-program_body ::= declarations:decs func_calls:calls           {: RESULT = "\tpublic static void main(String[] args) {";
+program_body ::= declarations:decs func_calls:calls           {: RESULT = "\tpublic static void main(String[] args) {\n";
                                                                 RESULT += "" + calls;
-                                                                RESULT += "\t}";
-                                                                RESULT += "" + decs; :}
+                                                                RESULT += "\n\t}";
+                                                                RESULT += "\n" + decs; :}
                 ;
 
 
@@ -84,14 +73,14 @@ declaration ::= IDENT:id LPAREN dec_args:args STRING_LITERAL:str RCURLBRACKET {:
 
 /*Function calls*/
 
-func_calls ::= func_call:call func_calls:calls      {: RESULT = call  + "\n" + calls; :}
-            |  func_call:call                       {: RESULT = call; :}
+func_calls ::= func_call:call func_calls:calls      {: RESULT = "\t\tSystem.out.println(" + call  + ");\n\t\t" + calls; :}
+            |  func_call:call                       {: RESULT = "System.out.println(" + call  + ");"; :}
             ;
 
 func_args ::= IDENT:id COMMA func_args:args         {: RESULT = id + ", " + args; :}
             | IDENT:id RPAREN                       {: RESULT = id + ")"; :}
             ;
 
-func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args + ");"; :}
-            | IDENT:id LPAREN RPAREN                 {: RESULT = id + "();"; :}
+func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args + ")"; :}
+            | IDENT:id LPAREN RPAREN                 {: RESULT = id + "()"; :}
             ;
