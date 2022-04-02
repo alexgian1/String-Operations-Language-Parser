@@ -31,8 +31,8 @@ non terminal            func_call, declaration, program_start, program_body, dec
  *  Precedence Declarations
  */
 
-//precedence declaration_body;
-//precedence left concat_expr;
+//precedence left string_expr;
+//precedence left func_args, dec_args;
 
 
 /**
@@ -60,8 +60,8 @@ declarations ::= declarations:decs declaration:dec    {: RESULT = dec  + "\n" + 
                 | declaration:dec                     {: RESULT = dec;                  :}
                 ;
 
-dec_args ::= IDENT:id COMMA dec_args:args     {: RESULT = "String " + id + ", " + args;     :}
-            | IDENT:id RPAREN LCURLBRACKET    {: RESULT = "String " + id + ") {\n";         :}
+dec_args ::= string_expr:str COMMA dec_args:args     {: RESULT = "String " + str + ", " + args;     :}
+            | string_expr:str RPAREN LCURLBRACKET    {: RESULT = "String " + str + ") {\n";         :}
             ;
 
 declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET        {: RESULT = "\tpublic static String " + id + "(" + args;
@@ -84,10 +84,8 @@ func_calls ::= func_call:call func_calls:calls      {: RESULT = "\t\tSystem.out.
 
 func_args ::= func_call:call COMMA func_args:args         {: RESULT = call + ", " + args;         :}
             | string_expr:str COMMA func_args:args     {: RESULT = str + ", " + args;          :}
-            | IDENT:id COMMA func_args:args               {: RESULT = id + ", " + args;           :}
             | func_call:call RPAREN                       {: RESULT = call + ")";                 :}
             | string_expr:str RPAREN                      {: RESULT = str + ")";                  :}
-            | IDENT:id RPAREN                             {: RESULT = id + ")";                   :}
             ;
 
 func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args;        :}
@@ -96,12 +94,12 @@ func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args
 
 /* Expressions */
 
-concat_expr ::= string_expr:str PLUS concat_expr:expr                  {: RESULT = str + " + " + expr;   :}
+concat_expr ::= string_expr:str PLUS concat_expr:expr           {: RESULT = str + " + " + expr;   :}
             | string_expr:str                                   {: RESULT = str;                  :}
             ;
 
 string_expr ::= REVERSE string_expr:str                 {: RESULT =  "new StringBuilder(" + str + ").reverse().toString()";   :}
-            | STRING_LITERAL:str                       {: RESULT = "\"" + str + "\"";         :}
+            | STRING_LITERAL:str                        {: RESULT = "\"" + str + "\"";         :}
             | IDENT:id                                  {: RESULT = id;         :}
             ;
 
