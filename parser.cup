@@ -1,4 +1,3 @@
-/* Simple +/-/* expression language; parser evaluates constant expressions on the fly*/
 /**
  *  Package and Import Specifications
  */
@@ -21,81 +20,91 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal            LPAREN, RPAREN, LCURLBRACKET, RCURLBRACKET, IDENT, COMMA, PLUS;
+terminal            LPAREN, RPAREN, LCURLBRACKET, RCURLBRACKET, IDENT, COMMA, PLUS, IF, ELSE, REVERSE;
 terminal String     STRING_LITERAL;        // our scanner provides numbers as strings
 
 /*  Non terminals */
-non terminal            func_call, declaration, program_start, program_body, declarations, func_calls, dec_args, func_args, concat_expr, declaration_body;
+non terminal            func_call, declaration, program_start, program_body, declarations, func_calls, dec_args, func_args, concat_expr, string_expr, declaration_body;
 //non terminal Integer   expr;      // used to store evaluated subexpressions
 
 /**
  *  Precedence Declarations
  */
-//precedence left PLUS, MINUS;
-//precedence left TIMES;
+
+//precedence declaration_body;
+//precedence left concat_expr;
+
 
 /**
  *  The Grammar Rules
  */
 
 
-/*Program structure*/
+/* Program structure */
 
 program_start ::= program_body:body         {: System.out.println("public class Main {");
-                                            System.out.println(body);
-                                            System.out.println("}"); :}
+                                               System.out.println(body);
+                                               System.out.println("}"); :}
                 ;
 
 program_body ::= declarations:decs func_calls:calls           {: RESULT = "\tpublic static void main(String[] args) {\n";
-                                                                RESULT += "" + calls;
-                                                                RESULT += "\n\t}";
-                                                                RESULT += "\n" + decs; :}
+                                                                 RESULT += "" + calls;
+                                                                 RESULT += "\n\t}";
+                                                                 RESULT += "\n" + decs;                                      :}
                 ;
 
 
-/*Declarations*/
+/* Declarations */
 
-declarations ::= declarations:decs declaration:dec    {: RESULT = dec  + "\n" + decs; :}
-                | declaration:dec                    {: RESULT = dec; :}
+declarations ::= declarations:decs declaration:dec    {: RESULT = dec  + "\n" + decs;   :}
+                | declaration:dec                     {: RESULT = dec;                  :}
                 ;
 
-dec_args ::= IDENT:id COMMA dec_args:args     {: RESULT = "String " + id + ", " + args; :}
-            | IDENT:id RPAREN LCURLBRACKET    {: RESULT = "String " + id + ") {\n"; :}
+dec_args ::= IDENT:id COMMA dec_args:args     {: RESULT = "String " + id + ", " + args;     :}
+            | IDENT:id RPAREN LCURLBRACKET    {: RESULT = "String " + id + ") {\n";         :}
             ;
 
-declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET {: RESULT = "\tpublic static String " + id + "(" + args;
-                                                                                RESULT += "\t\treturn " + body + ";\n";
-                                                                                RESULT += "\t}"; :}
-            | IDENT:id LPAREN RPAREN LCURLBRACKET declaration_body:body RCURLBRACKET {: RESULT = "\tpublic static String " + id + "() {\n";
-                                                                                    RESULT += "\t\treturn " + body + ";\n";
-                                                                                    RESULT += "\t}"; :}
+declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET        {: RESULT = "\tpublic static String " + id + "(" + args;
+                                                                                           RESULT += "\t\treturn " + body + ";\n";
+                                                                                           RESULT += "\t}";                                     :}
+            | IDENT:id LPAREN RPAREN LCURLBRACKET declaration_body:body RCURLBRACKET    {: RESULT = "\tpublic static String " + id + "() {\n";
+                                                                                           RESULT += "\t\treturn " + body + ";\n";
+                                                                                           RESULT += "\t}";                                     :}
             ;
 
 declaration_body ::= concat_expr:expr                {: RESULT = expr;                  :}
-                |   STRING_LITERAL:str               {: RESULT = "\"" + str + "\"";     :}
                 ;
 
 
-/*Function calls*/
+/* Function calls */
 
 func_calls ::= func_call:call func_calls:calls      {: RESULT = "\t\tSystem.out.println(" + call  + ");\n" + calls;     :}
             |  func_call:call                       {: RESULT = "\t\tSystem.out.println(" + call  + ");";               :}
             ;
 
 func_args ::= func_call:call COMMA func_args:args         {: RESULT = call + ", " + args;         :}
-            | STRING_LITERAL:str COMMA func_args:args     {: RESULT = "\"" + str + "\", " + args; :}
+            | string_expr:str COMMA func_args:args     {: RESULT = str + ", " + args;          :}
             | IDENT:id COMMA func_args:args               {: RESULT = id + ", " + args;           :}
             | func_call:call RPAREN                       {: RESULT = call + ")";                 :}
-            | STRING_LITERAL:str RPAREN                   {: RESULT = "\"" + str + "\")";         :}
-            | IDENT:id RPAREN                             {: RESULT = id + ")";                  :}
+            | string_expr:str RPAREN                      {: RESULT = str + ")";                  :}
+            | IDENT:id RPAREN                             {: RESULT = id + ")";                   :}
             ;
 
 func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args;        :}
             | IDENT:id LPAREN RPAREN                 {: RESULT = id + "()";              :}
             ;
 
-/*Expressions*/
+/* Expressions */
 
-concat_expr ::= IDENT:id PLUS concat_expr:expr                  {: RESULT = id + "+" + expr;   :}
-            | IDENT:id                                          {: RESULT = id;                :}                  
+concat_expr ::= string_expr:str PLUS concat_expr:expr                  {: RESULT = str + " + " + expr;   :}
+            | string_expr:str                                   {: RESULT = str;                  :}
             ;
+
+string_expr ::= REVERSE string_expr:str                 {: RESULT =  "new StringBuilder(" + str + ").reverse().toString()";   :}
+            | STRING_LITERAL:str                       {: RESULT = "\"" + str + "\"";         :}
+            | IDENT:id                                  {: RESULT = id;         :}
+            ;
+
+
+/* If/Else Statements */
+

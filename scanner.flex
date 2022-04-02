@@ -64,6 +64,11 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
 /* ------------------------Lexical Rules Section---------------------- */
 
 <YYINITIAL> {
+/* keywords  */
+ "if"           { return symbol(sym.IF); }
+ "else"         { return symbol(sym.ELSE); }
+ "reverse"      { return symbol(sym.REVERSE); }
+ 
 /* operators */
  "("            { return symbol(sym.LPAREN); }
  ")"            { return symbol(sym.RPAREN); }
