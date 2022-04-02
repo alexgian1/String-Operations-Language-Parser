@@ -43,7 +43,8 @@ non terminal            func_call, declaration, program_start, program_body, dec
 
 program_start ::= program_body:body         {: System.out.println("public class Main {");
                                             System.out.println(body);
-                                            System.out.println("}"); :};
+                                            System.out.println("}"); :}
+                ;
 
 program_body ::= declarations:decs func_calls:calls           {: RESULT = "\tpublic static void main(String[] args) {\n";
                                                                 RESULT += "" + calls;
@@ -70,29 +71,31 @@ declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET
                                                                                     RESULT += "\t}"; :}
             ;
 
-declaration_body ::= concat_expr:expr                {: RESULT = expr; :}
-                |   STRING_LITERAL:str               {: RESULT = "\"" + str + "\"";  :}
+declaration_body ::= concat_expr:expr                {: RESULT = expr;                  :}
+                |   STRING_LITERAL:str               {: RESULT = "\"" + str + "\"";     :}
                 ;
 
 
 /*Function calls*/
 
-func_calls ::= func_call:call func_calls:calls      {: RESULT = "\t\tSystem.out.println(" + call  + ");\n" + calls; :}
-            |  func_call:call                       {: RESULT = "\t\tSystem.out.println(" + call  + ");"; :}
+func_calls ::= func_call:call func_calls:calls      {: RESULT = "\t\tSystem.out.println(" + call  + ");\n" + calls;     :}
+            |  func_call:call                       {: RESULT = "\t\tSystem.out.println(" + call  + ");";               :}
             ;
 
-func_args ::= func_call:call COMMA func_args:args         {: RESULT = call + ", " + args; :}
+func_args ::= func_call:call COMMA func_args:args         {: RESULT = call + ", " + args;         :}
             | STRING_LITERAL:str COMMA func_args:args     {: RESULT = "\"" + str + "\", " + args; :}
-            | func_call:call RPAREN                       {: RESULT = call + ")"; :}
-            | STRING_LITERAL:str RPAREN                   {: RESULT = "\"" + str + "\")"; :}
+            | IDENT:id COMMA func_args:args               {: RESULT = id + ", " + args;           :}
+            | func_call:call RPAREN                       {: RESULT = call + ")";                 :}
+            | STRING_LITERAL:str RPAREN                   {: RESULT = "\"" + str + "\")";         :}
+            | IDENT:id RPAREN                             {: RESULT = id + ")";                  :}
             ;
 
-func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args; :}
-            | IDENT:id LPAREN RPAREN                 {: RESULT = id + "()"; :}
+func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args;        :}
+            | IDENT:id LPAREN RPAREN                 {: RESULT = id + "()";              :}
             ;
 
 /*Expressions*/
 
-concat_expr ::= IDENT:id PLUS concat_expr:expr                  {: RESULT = id + "+" + expr; :}
-            | IDENT:id                                          {: RESULT = id;              :}                  
+concat_expr ::= IDENT:id PLUS concat_expr:expr                  {: RESULT = id + "+" + expr;   :}
+            | IDENT:id                                          {: RESULT = id;                :}                  
             ;
