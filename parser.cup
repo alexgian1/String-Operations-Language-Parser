@@ -20,11 +20,16 @@ scan with {: return s.next_token(); :};
  */
 
 /* Terminals (tokens returned by the scanner). */
-terminal            LPAREN, RPAREN, LCURLBRACKET, RCURLBRACKET, IDENT, COMMA, PLUS, IF, ELSE, REVERSE;
-terminal String     STRING_LITERAL;        // our scanner provides numbers as strings
+terminal            LPAREN, RPAREN, LCURLBRACKET, RCURLBRACKET, IDENT, COMMA, PLUS, IF, ELSE, REVERSE, PREFIX;
+terminal String     STRING_LITERAL;  
 
 /*  Non terminals */
-non terminal            func_call, declaration, program_start, program_body, declarations, func_calls, dec_args, func_args, concat_expr, string_expr, declaration_body;
+non terminal            func_call, func_calls, func_args, 
+                        declaration, declarations, dec_args, declaration_body,
+                        program_start, program_body, 
+                        concat_expr, string_expr, conditional_expr,
+                        if_statement, if_else_body;
+
 //non terminal Integer   expr;      // used to store evaluated subexpressions
 
 /**
@@ -65,14 +70,15 @@ dec_args ::= string_expr:str COMMA dec_args:args     {: RESULT = "String " + str
             ;
 
 declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET        {: RESULT = "\tpublic static String " + id + "(" + args;
-                                                                                           RESULT += "\t\treturn " + body + ";\n";
+                                                                                           RESULT += "\t\t " + body + "\n";
                                                                                            RESULT += "\t}";                                     :}
             | IDENT:id LPAREN RPAREN LCURLBRACKET declaration_body:body RCURLBRACKET    {: RESULT = "\tpublic static String " + id + "() {\n";
-                                                                                           RESULT += "\t\treturn " + body + ";\n";
+                                                                                           RESULT += "\t\t" + body + "\n";
                                                                                            RESULT += "\t}";                                     :}
             ;
 
-declaration_body ::= concat_expr:expr                {: RESULT = expr;                  :}
+declaration_body ::= concat_expr:expr                {: RESULT = "return " + expr + ";";      :}
+                | if_statement:stmnt                 {: RESULT = stmnt;                  :}
                 ;
 
 
@@ -103,6 +109,17 @@ string_expr ::= REVERSE string_expr:str                 {: RESULT =  "new String
             | IDENT:id                                  {: RESULT = id;         :}
             ;
 
+conditional_expr ::= string_expr:str1 PREFIX string_expr:str2       {: RESULT = str2 + ".startsWith(" + str1 + ")"; :}
+                    ;
 
 /* If/Else Statements */
 
+if_statement ::= IF LPAREN conditional_expr:cond RPAREN if_else_body:ifbody ELSE if_else_body:elsebody  {: RESULT = "if (" + cond + "){\n";
+                                                                                 RESULT += "\t" + ifbody + "\n}\n";
+                                                                                RESULT += "else { \n\t" + elsebody + "\n}";                       :}
+                ;
+
+if_else_body ::= string_expr:str          {: RESULT = "return " + str + ";"; :}
+        | if_statement:stmnt                {: RESULT = stmnt; :}
+        | func_call:call                    {: RESULT = "return " + call + ";"; :}
+        ;

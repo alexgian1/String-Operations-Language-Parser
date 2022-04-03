@@ -68,6 +68,7 @@ WhiteSpace     = {LineTerminator} | [ \t\f]
  "if"           { return symbol(sym.IF); }
  "else"         { return symbol(sym.ELSE); }
  "reverse"      { return symbol(sym.REVERSE); }
+ "prefix"       { return symbol(sym.PREFIX); }
  
 /* operators */
  "("            { return symbol(sym.LPAREN); }
