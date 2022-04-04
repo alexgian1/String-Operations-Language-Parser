@@ -52,9 +52,9 @@ program_start ::= program_body:body         {: System.out.println("public class 
                                                System.out.println("}"); :}
                 ;
 
-program_body ::= declarations:decs func_calls:calls           {: RESULT = "\tpublic static void main(String[] args) {\n";
+program_body ::= declarations:decs func_calls:calls           {: RESULT = "public static void main(String[] args) {\n";
                                                                  RESULT += "" + calls;
-                                                                 RESULT += "\n\t}";
+                                                                 RESULT += "\n}";
                                                                  RESULT += "\n" + decs;                                      :}
                 ;
 
@@ -69,12 +69,12 @@ dec_args ::= string_expr:str COMMA dec_args:args     {: RESULT = "String " + str
             | string_expr:str RPAREN LCURLBRACKET    {: RESULT = "String " + str + ") {\n";         :}
             ;
 
-declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET        {: RESULT = "\tpublic static String " + id + "(" + args;
-                                                                                           RESULT += "\t\t " + body + "\n";
-                                                                                           RESULT += "\t}";                                     :}
-            | IDENT:id LPAREN RPAREN LCURLBRACKET declaration_body:body RCURLBRACKET    {: RESULT = "\tpublic static String " + id + "() {\n";
-                                                                                           RESULT += "\t\t" + body + "\n";
-                                                                                           RESULT += "\t}";                                     :}
+declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET        {: RESULT = "public static String " + id + "(" + args;
+                                                                                           RESULT += " " + body + "\n";
+                                                                                           RESULT += "}";                                     :}
+            | IDENT:id LPAREN RPAREN LCURLBRACKET declaration_body:body RCURLBRACKET    {: RESULT = "public static String " + id + "() {\n";
+                                                                                           RESULT += "" + body + "\n";
+                                                                                           RESULT += "}";                                     :}
             ;
 
 declaration_body ::= concat_expr:expr                {: RESULT = "return " + expr + ";";      :}
@@ -84,8 +84,8 @@ declaration_body ::= concat_expr:expr                {: RESULT = "return " + exp
 
 /* Function calls */
 
-func_calls ::= func_call:call func_calls:calls      {: RESULT = "\t\tSystem.out.println(" + call  + ");\n" + calls;     :}
-            |  func_call:call                       {: RESULT = "\t\tSystem.out.println(" + call  + ");";               :}
+func_calls ::= func_call:call func_calls:calls      {: RESULT = "System.out.println(" + call  + ");\n" + calls;     :}
+            |  func_call:call                       {: RESULT = "System.out.println(" + call  + ");";               :}
             ;
 
 func_args ::= func_call:call COMMA func_args:args         {: RESULT = call + ", " + args;         :}
@@ -115,8 +115,8 @@ conditional_expr ::= string_expr:str1 PREFIX string_expr:str2       {: RESULT = 
 /* If/Else Statements */
 
 if_statement ::= IF LPAREN conditional_expr:cond RPAREN if_else_body:ifbody ELSE if_else_body:elsebody  {: RESULT = "if (" + cond + "){\n";
-                                                                                 RESULT += "\t" + ifbody + "\n}\n";
-                                                                                RESULT += "else { \n\t" + elsebody + "\n}";                       :}
+                                                                                 RESULT += "" + ifbody + "\n}\n";
+                                                                                RESULT += "else { \n" + elsebody + "\n}";                       :}
                 ;
 
 if_else_body ::= string_expr:str          {: RESULT = "return " + str + ";"; :}
