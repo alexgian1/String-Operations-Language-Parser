@@ -2,7 +2,7 @@
 
 The language supports concatenation (+) and "reverse" operators over strings, function definitions and calls, conditionals (if-else i.e, every "if" must be followed by an "else"), and the following logical expression:
 
-is-prefix-of (string1 prefix string2): Whether string1 is a prefix of string2.
+- is-prefix-of (string1 prefix string2): Whether string1 is a prefix of string2.
 All values in the language are strings.
 
 The precedence of the operator expressions is defined as: precedence(if) < precedence(concat) < precedence(reverse).
@@ -13,7 +13,7 @@ We assume that the program input will always be semantically correct. The input 
 
 Input examples:
 
-Example 1
+### Example 1
 
     name()  {
         "John"
@@ -33,7 +33,7 @@ Example 1
 
 
 
-Example 2
+### Example 2
 
     name() {
         "John"
@@ -57,7 +57,7 @@ Example 2
     cond_repeat("no", "Jane")
 
 
-Example 3
+### Example 3
 
     findLangType(langName) {
         if ("Java" prefix langName)
