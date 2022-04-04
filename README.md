@@ -11,7 +11,7 @@ The parser translates the input language into Java. It uses JavaCUP for the gene
 
 We assume that the program input will always be semantically correct. The input language the function declarations must precede all statements.
 
-Input examples:
+## Input examples
 
 ### Example 1
 
