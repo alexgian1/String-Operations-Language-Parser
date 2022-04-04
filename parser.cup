@@ -30,16 +30,6 @@ non terminal            func_call, func_calls, func_args,
                         concat_expr, string_expr, conditional_expr,
                         if_statement, if_else_body;
 
-//non terminal Integer   expr;      // used to store evaluated subexpressions
-
-/**
- *  Precedence Declarations
- */
-
-//precedence left string_expr;
-//precedence left func_args, dec_args;
-
-
 /**
  *  The Grammar Rules
  */
@@ -98,6 +88,7 @@ func_call ::= IDENT:id LPAREN func_args:args         {: RESULT = id + "(" + args
             | IDENT:id LPAREN RPAREN                 {: RESULT = id + "()";              :}
             ;
 
+
 /* Expressions */
 
 concat_expr ::= string_expr:str PLUS concat_expr:expr           {: RESULT = str + " + " + expr;   :}
@@ -111,6 +102,7 @@ string_expr ::= REVERSE string_expr:str                 {: RESULT =  "new String
 
 conditional_expr ::= string_expr:str1 PREFIX string_expr:str2       {: RESULT = str2 + ".startsWith(" + str1 + ")"; :}
                     ;
+
 
 /* If/Else Statements */
 
