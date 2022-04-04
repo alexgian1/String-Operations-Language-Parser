@@ -31,6 +31,14 @@ non terminal            func_call, func_calls, func_args,
                         if_statement, if_else_body;
 
 /**
+ *  Precedence Declarations
+ */
+precedence left IF;
+precedence left PLUS;
+precedence left REVERSE;
+
+
+/**
  *  The Grammar Rules
  */
 
