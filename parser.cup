@@ -54,6 +54,8 @@ program_body ::= declarations:decs func_calls:calls           {: RESULT = "publi
                                                                  RESULT += "" + calls;
                                                                  RESULT += "\n}";
                                                                  RESULT += "\n" + decs;                                      :}
+                | declarations:decs                           {: RESULT = "public static void main(String[] args) {}";
+                                                                 RESULT += "\n" + decs;                                      :}
                 ;
 
 
@@ -76,7 +78,6 @@ declaration ::= IDENT:id LPAREN dec_args:args declaration_body:body RCURLBRACKET
             ;
 
 declaration_body ::= concat_expr:expr                {: RESULT = "return " + expr + ";";      :}
-                | if_statement:stmnt                 {: RESULT = stmnt;                  :}
                 ;
 
 
@@ -106,6 +107,7 @@ concat_expr ::= string_expr:str PLUS concat_expr:expr           {: RESULT = str 
 string_expr ::= REVERSE string_expr:str                 {: RESULT =  "new StringBuilder(" + str + ").reverse().toString()";   :}
             | STRING_LITERAL:str                        {: RESULT = "\"" + str + "\"";         :}
             | IDENT:id                                  {: RESULT = id;         :}
+            | if_statement:stmnt                        {: RESULT = stmnt;                                                    :}
             ;
 
 conditional_expr ::= string_expr:str1 PREFIX string_expr:str2       {: RESULT = str2 + ".startsWith(" + str1 + ")"; :}
@@ -114,12 +116,11 @@ conditional_expr ::= string_expr:str1 PREFIX string_expr:str2       {: RESULT = 
 
 /* If/Else Statements */
 
-if_statement ::= IF LPAREN conditional_expr:cond RPAREN if_else_body:ifbody ELSE if_else_body:elsebody  {: RESULT = "if (" + cond + "){\n";
-                                                                                 RESULT += "" + ifbody + "\n}\n";
-                                                                                RESULT += "else { \n" + elsebody + "\n}";                       :}
+if_statement ::= IF LPAREN conditional_expr:cond RPAREN if_else_body:ifbody ELSE if_else_body:elsebody  {: RESULT = "(" + cond + ") ?";
+                                                                                 RESULT += "(" + ifbody + "):";
+                                                                                RESULT += "(" + elsebody + ")";                       :}
                 ;
 
-if_else_body ::= string_expr:str          {: RESULT = "return " + str + ";"; :}
-        | if_statement:stmnt                {: RESULT = stmnt; :}
-        | func_call:call                    {: RESULT = "return " + call + ";"; :}
+if_else_body ::= concat_expr:expr          {: RESULT = expr; :}
+        | func_call:call                    {: RESULT = call; :}
         ;
